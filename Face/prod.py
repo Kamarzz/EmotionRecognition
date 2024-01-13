@@ -3,9 +3,8 @@ import numpy as np
 import torch
 import torchvision.transforms as transforms
 import pyvirtualcam
-
+# import Voice.live_ser as ser
 from Face.model import CNNModel
-
 
 def preprocess(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -41,22 +40,22 @@ def overlay_emoji(frame, emoji, position=(50, 50), scale=2 ):
 
 
 model = CNNModel()
-model_path = 'model.pth'
+model_path = 'Face/model.pth'
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cuda')))
 model.eval()
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('Face/haarcascade_frontalface_default.xml')
 
 CLASS_LABELS = ['Angry', 'Disgust', 'Fear', 'Happiness', 'Sad', 'Surprise', 'Neutral']
 
 emojis = {
-    'Happiness': cv2.imread('emoji/Happy/icons8-grinning-face-with-smiling-eyes-96.png', cv2.IMREAD_UNCHANGED),
-    'Sad': cv2.imread('emoji/Sad/icons8-crying-face-96.png', cv2.IMREAD_UNCHANGED),
-    'Angry': cv2.imread('emoji/Angry/icons8-face-with-symbols-on-mouth-96.png', cv2.IMREAD_UNCHANGED),
-    'Disgust': cv2.imread('emoji/Disgust/icons8-nauseated-face-96.png', cv2.IMREAD_UNCHANGED),
-    'Fear': cv2.imread('emoji/Fear/icons8-anxious-face-with-sweat-96.png', cv2.IMREAD_UNCHANGED),
-    'Surprise': cv2.imread('emoji/Surprise/icons8-face-with-open-mouth-96.png', cv2.IMREAD_UNCHANGED),
-    'Neutral': cv2.imread('emoji/Neutral/icons8-neutral-face-96.png', cv2.IMREAD_UNCHANGED),
+    'Happiness': cv2.imread('Face/emoji/Happy/icons8-grinning-face-with-smiling-eyes-96.png', cv2.IMREAD_UNCHANGED),
+    'Sad': cv2.imread('Face/emoji/Sad/icons8-crying-face-96.png', cv2.IMREAD_UNCHANGED),
+    'Angry': cv2.imread('Face/emoji/Angry/icons8-face-with-symbols-on-mouth-96.png', cv2.IMREAD_UNCHANGED),
+    'Disgust': cv2.imread('Face/emoji/Disgust/icons8-nauseated-face-96.png', cv2.IMREAD_UNCHANGED),
+    'Fear': cv2.imread('Face/emoji/Fear/icons8-anxious-face-with-sweat-96.png', cv2.IMREAD_UNCHANGED),
+    'Surprise': cv2.imread('Face/emoji/Surprise/icons8-face-with-open-mouth-96.png', cv2.IMREAD_UNCHANGED),
+    'Neutral': cv2.imread('Face/emoji/Neutral/icons8-neutral-face-96.png', cv2.IMREAD_UNCHANGED),
 }
 
 cap = cv2.VideoCapture(0)
@@ -85,6 +84,13 @@ with pyvirtualcam.Camera(width=width, height=height, fps=fps) as cam:
 
             frame = cv2.flip(frame, 1)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            try:
+                with open('Face/file.txt', 'r') as file:
+                    first_line = file.readline().strip()
+                print(first_line)
+            except FileNotFoundError:
+                print("no file")
 
             cam.send(frame)
             cam.sleep_until_next_frame()

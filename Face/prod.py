@@ -64,20 +64,24 @@ width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
+frame_counter = 0
+update_interval = 10
+predicted_emotion = None  # Инициализация переменной здесь
+
 with pyvirtualcam.Camera(width=width, height=height, fps=fps) as cam:
     while True:
         ret, frame = cap.read()
         if ret:
-            frame_processed = preprocess(frame)
+            if frame_counter % update_interval == 0:
+                frame_processed = preprocess(frame)
 
-            if frame_processed is not None:
-                with torch.no_grad():
-                    predictions = model(frame_processed)
+                if frame_processed is not None:
+                    with torch.no_grad():
+                        predictions = model(frame_processed)
+                    predicted_emotion = CLASS_LABELS[torch.argmax(predictions)]
 
-                predicted_emotion = CLASS_LABELS[torch.argmax(predictions)]
-
-                if predicted_emotion in emojis:
-                    overlay_emoji(frame, emojis[predicted_emotion])
+            if predicted_emotion and predicted_emotion in emojis:
+                overlay_emoji(frame, emojis[predicted_emotion])
 
             frame = cv2.flip(frame, 1)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -87,6 +91,10 @@ with pyvirtualcam.Camera(width=width, height=height, fps=fps) as cam:
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+
+            frame_counter += 1
+            if frame_counter >= update_interval:
+                frame_counter = 0
 
 cap.release()
 cv2.destroyAllWindows()

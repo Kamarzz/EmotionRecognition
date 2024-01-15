@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-import matplotlib as plt
 
 from Face.model import CNNModel
 
@@ -96,7 +95,7 @@ train_losses = []
 val_losses = []
 val_accuracies = []
 
-num_epochs = 50
+num_epochs = 100
 for epoch in range(num_epochs):
     train_loss = 0
     val_loss = 0
@@ -157,4 +156,4 @@ for epoch in range(num_epochs):
 
 
 # Сохранение модели
-torch.save(model.state_dict(), 'model.pth')
+torch.save(model.state_dict(), 'model100.pth')
